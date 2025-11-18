@@ -1,4 +1,4 @@
-// app/src/main/java/com/example/myapplication/todo/ui/items/ItemList.kt
+
 package com.example.myapp.todo.ui.items
 
 import android.util.Log
