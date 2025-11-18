@@ -19,7 +19,7 @@ import java.util.Date
 
 data class ItemUiState(
     val itemId: String? = null,
-    val item: Item? = null,
+    val item: Item,
     var submitResult: Result<Item>? = null,
 )
 
@@ -39,7 +39,7 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
     fun saveOrUpdateItem(
         name: String,
         description: String,
-        noEmployeesStr: String,
+        noEmployees: Int,
         openingDateMillis: String,
         isPublic: Boolean
     ) {
@@ -47,16 +47,15 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
             Log.d(TAG, "saveOrUpdateItem - started")
             try {
                 uiState = uiState.copy(submitResult = Result.Loading)
-                val noEmployees = noEmployeesStr.toIntOrNull() ?: 1
                 val openingDate = openingDateMillis.toLongOrNull()?.let { Date(it) } ?: Date()
 
-                val itemToSave = uiState.item?.copy(
+                val itemToSave = uiState.item.copy(
                     name = name,
                     description = description,
                     noEmployees = noEmployees,
                     openingDate = openingDate,
                     isPublic = isPublic
-                ) ?: return@launch
+                )
 
                 val savedItem = if (itemId == null) {
                     itemRepository.save(itemToSave)
