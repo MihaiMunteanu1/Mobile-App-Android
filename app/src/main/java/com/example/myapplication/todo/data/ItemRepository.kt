@@ -1,48 +1,45 @@
-package com.example.myapp.todo.data
+package com.example.myapplication.todo.data
 
 import android.util.Log
-import java.time.LocalDate
-import java.util.Date
+import com.example.myapplication.core.TAG
+import com.example.myapplication.todo.data.remote.ItemService
 
-object ItemRepository {
-    private val _items = List(100) { index ->
-        Item(
-            id = "$index",
-            name = "Item $index",
-            description = "Description for item $index",
-            noEmployees = (index % 10) + 1,
-            openingDate = Date.from(
-                LocalDate.now()
-                    .minusDays(index.toLong())
-                    .atStartOfDay(java.time.ZoneId.systemDefault())
-                    .toInstant()
-            ),            isPublic = index % 2 == 0
-        )
-    }.toMutableList()
+class ItemRepository(private val itemService: ItemService) {
+    private var cachedItems: MutableList<Item> = listOf<Item>().toMutableList()
 
-    val items: List<Item> = _items
-
-    fun update(
-        id: String,
-        name: String,
-        description: String,
-        noEmployees: Int,
-        openingDate: Date,
-        isPublic: Boolean
-    ): Item? {
-        Log.d("ItemRepository", "update $id")
-        val index = _items.indexOfFirst { it.id == id }
-        if (index != -1) {
-            val item = _items[index].copy(
-                name = name,
-                description = description,
-                noEmployees = noEmployees,
-                openingDate = openingDate,
-                isPublic = isPublic
-            )
-            _items[index] = item
-            return item
-        }
-        return null
+    init {
+        Log.d(TAG, "init")
     }
+
+    suspend fun loadAll(): List<Item> {
+        Log.d(TAG, "loadAll")
+        val items = itemService.find();
+        Log.d(TAG, "loadAll succeeded ${items.size}")
+        cachedItems = items.toMutableList()
+        return cachedItems as List<Item>
+    }
+
+    suspend fun load(itemId: String?): Item {
+        Log.d(TAG, "load $itemId")
+        return itemService.read(itemId)
+    }
+
+    suspend fun update(item: Item): Item {
+        Log.d(TAG, "update $item")
+        val updatedItem = itemService.update(item.id, item)
+        val index = cachedItems.indexOfFirst { it.id == item.id }
+        if (index != -1) {
+            cachedItems.set(index, updatedItem)
+        }
+        return updatedItem
+    }
+
+    suspend fun save(item: Item): Item {
+        Log.d(TAG, "save $item")
+        val createdItem = itemService.create(item)
+        cachedItems.add(0, createdItem);
+        return createdItem
+    }
+
+    fun getItem(itemId: String?): Item? = cachedItems?.find { it.id == itemId }
 }

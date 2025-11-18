@@ -1,9 +1,10 @@
 
-package com.example.myapp.todo.ui.items
+package com.example.myapplication.todo.ui.items
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,15 +13,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.example.myapp.todo.data.Item
+import androidx.compose.ui.unit.sp
+import com.example.myapplication.todo.data.Item
 
-typealias OnItemFn = (id: String) -> Unit
+typealias OnItemFn = (id: String?) -> Unit
 
 @Composable
-fun ItemList(itemList: List<Item>, onItemClick: OnItemFn) {
+fun ItemList(itemList: List<Item>, onItemClick: OnItemFn, modifier: Modifier) {
     Log.d("ItemList", "recompose")
-    LazyColumn {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(12.dp)
+    ) {
         items(itemList) { item ->
             ItemDetail(item, onItemClick)
         }
@@ -31,7 +38,9 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     Log.d("ItemDetail", "recompose id = ${item.id}")
     Row(modifier = Modifier.padding(10.dp)) {
         Column {
-            ClickableText(text = AnnotatedString(item.name), onClick = { onItemClick(item.id) })
+            ClickableText(text = AnnotatedString(item.name),style = TextStyle(
+                fontSize = 24.sp,
+            ), onClick = { onItemClick(item.id) })
             Text("Description: ${item.description}")
             Text("Employees: ${item.noEmployees}")
             Text("Opened: ${item.openingDate}")
@@ -40,16 +49,4 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     }
 }
 
-//@Composable
-//fun ItemDetail(item: Item, onItemClick: OnItemFn) {
-//    Log.d("ItemDetail", "recompose id = ${item.id}")
-//    Row {
-//        Column {
-//            ClickableText(text = AnnotatedString(item.name), onClick = { onItemClick(item.id) })
-//            AnnotatedString("Description: ${item.description}")
-//            AnnotatedString("Employees: ${item.noEmployees}")
-//            AnnotatedString("Opened: ${item.openingDate}")
-//            AnnotatedString("Public: ${item.isPublic}")
-//        }
-//    }
-//}
+
