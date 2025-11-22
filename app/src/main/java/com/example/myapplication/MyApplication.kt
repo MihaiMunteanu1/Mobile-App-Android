@@ -17,7 +17,7 @@ package com.example.myapplication
 
 import android.app.Application
 import android.util.Log
-import com.example.myapplication.AppContainer
+import com.example.myapplication.core.AppContainer
 import com.example.myapplication.core.TAG
 
 class MyApplication : Application() {
@@ -26,6 +26,6 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "init")
-        container = AppContainer()
+        container = AppContainer(this)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication.todo.ui.items
+package com.example.myapplication.core.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,23 +8,23 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.myapplication.MyApplication
 import com.example.myapplication.core.TAG
-import com.example.myapplication.todo.data.Item
-import com.example.myapplication.todo.data.ItemRepository
+import com.example.myapplication.core.data.UserPreferences
+import com.example.myapplication.core.data.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class ItemsViewModel(private val itemRepository: ItemRepository) : ViewModel() {
-    val uiState: Flow<List<Item>> = itemRepository.itemStream
+class UserPreferencesViewModel(private val userPreferencesRepository: UserPreferencesRepository) :
+    ViewModel() {
+    val uiState: Flow<UserPreferences> = userPreferencesRepository.userPreferencesStream
 
     init {
         Log.d(TAG, "init")
-        loadItems()
     }
 
-    fun loadItems() {
-        Log.d(TAG, "loadItems...")
+    fun save(userPreferences: UserPreferences) {
         viewModelScope.launch {
-            itemRepository.refresh()
+            Log.d(TAG, "saveUserPreferences...");
+            userPreferencesRepository.save(userPreferences)
         }
     }
 
@@ -33,8 +33,9 @@ class ItemsViewModel(private val itemRepository: ItemRepository) : ViewModel() {
             initializer {
                 val app =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MyApplication)
-                ItemsViewModel(app.container.itemRepository)
+                UserPreferencesViewModel(app.container.userPreferencesRepository)
             }
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.myapplication.todo.ui.items
+package com.example.myapplication
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -6,26 +6,31 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.myapplication.MyApplication
 import com.example.myapplication.core.TAG
-import com.example.myapplication.todo.data.Item
+import com.example.myapplication.core.data.UserPreferences
+import com.example.myapplication.core.data.UserPreferencesRepository
 import com.example.myapplication.todo.data.ItemRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class ItemsViewModel(private val itemRepository: ItemRepository) : ViewModel() {
-    val uiState: Flow<List<Item>> = itemRepository.itemStream
+class MyAppViewModel(
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val itemRepository: ItemRepository
+) :
+    ViewModel() {
 
     init {
         Log.d(TAG, "init")
-        loadItems()
     }
 
-    fun loadItems() {
-        Log.d(TAG, "loadItems...")
+    fun logout() {
         viewModelScope.launch {
-            itemRepository.refresh()
+            itemRepository.deleteAll()
+            userPreferencesRepository.save(UserPreferences())
         }
+    }
+
+    fun setToken(token: String) {
+        itemRepository.setToken(token)
     }
 
     companion object {
@@ -33,8 +38,12 @@ class ItemsViewModel(private val itemRepository: ItemRepository) : ViewModel() {
             initializer {
                 val app =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MyApplication)
-                ItemsViewModel(app.container.itemRepository)
+                MyAppViewModel(
+                    app.container.userPreferencesRepository,
+                    app.container.itemRepository
+                )
             }
         }
     }
 }
+
