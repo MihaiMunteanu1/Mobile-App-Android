@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class ItemRepository(
     private val itemService: ItemService,
@@ -76,10 +77,11 @@ class ItemRepository(
         awaitClose { itemWsClient.closeSocket() }
     }
 
-    suspend fun update(item: Item): Item {
+    suspend fun update(itemId: String, item: Item): Item {
         Log.d(TAG, "update $item...")
         val updatedItem =
-            itemService.update(itemId = item._id, item = item, authorization = getBearerToken())
+            itemService.update(itemId = itemId, item = item, authorization = getBearerToken())
+
         Log.d(TAG, "update $item succeeded")
         handleItemUpdated(updatedItem)
         return updatedItem
@@ -87,7 +89,10 @@ class ItemRepository(
 
     suspend fun save(item: Item): Item {
         Log.d(TAG, "save $item...")
-        val createdItem = itemService.create(item = item, authorization = getBearerToken())
+        //val createdItem = itemService.create(item = item, authorization = getBearerToken())
+        val itemWithId = if (item._id.isBlank()) item.copy(_id = UUID.randomUUID().toString()) else item
+        val createdItem =
+            itemService.create(item = itemWithId, authorization = getBearerToken())
         Log.d(TAG, "save $item succeeded")
         handleItemCreated(createdItem)
         return createdItem

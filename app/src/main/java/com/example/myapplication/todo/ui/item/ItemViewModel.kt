@@ -93,7 +93,9 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
                 val savedItem = if (itemId == null) {
                     itemRepository.save(itemToSave)
                 } else {
-                    itemRepository.update(itemToSave)
+                    //itemRepository.update(itemToSave)
+                    itemRepository.update(itemId, itemToSave.copy(_id = itemId))
+
                 }
 
                 Log.d(TAG, "saveOrUpdateItem - success")
