@@ -61,40 +61,25 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
     val loadResult = itemUiState.loadResult
 
     val item = if (loadResult is Result.Success) {
-        // Acum lucrezi cu variabila locală 'loadResult', care nu se poate schimba
-        // Smart cast-ul este sigur aici.
         loadResult.data
     } else {
         null
     }
 
-//    val dateFormat = remember {
-//        SimpleDateFormat("dd/MM/yyyy", Locale.US).apply {
-//            timeZone = TimeZone.getTimeZone("UTC")
-//        }
-//    }
-
-//    val datePickerState = rememberDatePickerState(
-//        initialSelectedDateMillis = System.currentTimeMillis()
-//    )
 
     val dateFormat = remember {
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     }
 
     val datePickerState = remember(item) {
-        // Calculează milisecundele o singură dată, la inițializare
         val initialMillis = if (item != null) {
             try {
-                // Încearcă să parsezi String-ul într-un obiect Date, apoi ia milisecundele
                 dateFormat.parse(item.openingDate)?.time
             } catch (e: Exception) {
-                // Dacă parsarea eșuează, folosește data curentă ca alternativă
                 Log.e("ItemAddScreen", "Failed to parse date: ${item.openingDate}", e)
                 System.currentTimeMillis()
             }
         } else {
-            // Dacă nu există item (mod adăugare), folosește data curentă
             System.currentTimeMillis()
         }
 
@@ -106,7 +91,6 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
 
     Log.d("ItemScreen2", "recompose, name = $name")
 
-    // 3. ADAUGĂ ACEST BLOC NOU: Sincronizează starea UI cu ViewModel
     LaunchedEffect(item) {
         if (item != null) {
             Log.d("ItemAddScreen", "Updating UI state with item: ${item.name}")
@@ -117,7 +101,6 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
         }
     }
 
-    // Effect to handle closing the screen on successful submission
     LaunchedEffect(itemUiState.submitResult) {
         Log.d("ItemScreen2", "Submit = ${itemUiState.submitResult}")
         if (itemUiState.submitResult is Result.Success) {
@@ -125,41 +108,6 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
             onClose()
         }
     }
-
-//    // Effect to handle closing the screen on successful submission
-//    LaunchedEffect(itemUiState.submitResult) {
-//        Log.d("ItemScreen2", "Submit = ${itemUiState.submitResult}")
-//        if (itemUiState.submitResult is Result.Success) {
-//            Log.d("ItemScreen2", "Closing screen")
-//            onClose()
-//        }
-//    }
-//
-//    // A flag to prevent re-initializing the state on every recomposition
-//    var uiStateInitialized by remember { mutableStateOf(itemId == null) }
-//
-//    // Effect to initialize the screen's state from the ViewModel once data is loaded
-//    LaunchedEffect(itemId, itemUiState.loadResult) {
-//        Log.d("ItemScreen2", "LoadResult changed: ${itemUiState.loadResult}")
-//        if (uiStateInitialized) {
-//            return@LaunchedEffect
-//        }
-//        if (itemUiState.loadResult !is Result.Loading) {
-//            Log.d("ItemScreen2", "Initializing state from loaded item: ${itemUiState.item}")
-//            name = itemUiState.item.name
-//            description = itemUiState.item.description
-//            noEmployees = itemUiState.item.noEmployees.toString()
-//            isPublic = itemUiState.item.isPublic
-//            val dateMillis = try {
-//                dateFormat.parse(itemUiState.item.openingDate)?.time
-//            } catch (e: Exception) {
-//                null
-//            }
-//            dateMillis?.let { datePickerState.selectedDateMillis = it }
-//
-//            uiStateInitialized = true
-//        }
-//    }
 
     Scaffold(
         topBar = {
@@ -241,8 +189,6 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                 DatePicker(
                     state = datePickerState,
                     modifier = Modifier.padding(top = 4.dp),
-                    // The DatePicker itself does not have an 'enabled' parameter in this version.
-                    // The parent container could be disabled if needed.
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -256,7 +202,6 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                     )
                 }
 
-                // Show error message if submission failed
                 if (itemUiState.submitResult is Result.Error) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
