@@ -71,13 +71,13 @@ fun ItemScreen(itemId: String?, onClose: () -> Unit) {
     )
 
 
-    Log.d("ItemScreen2", "recompose, name = $name")
+    Log.d("ItemScreen", "recompose, name = $name")
 
     // Effect to handle closing the screen on successful submission
     LaunchedEffect(itemUiState.submitResult) {
-        Log.d("ItemScreen2", "Submit = ${itemUiState.submitResult}")
+        Log.d("ItemScreen", "Submit = ${itemUiState.submitResult}")
         if (itemUiState.submitResult is Result.Success) {
-            Log.d("ItemScreen2", "Closing screen")
+            Log.d("ItemScreen", "Closing screen")
             onClose()
         }
     }

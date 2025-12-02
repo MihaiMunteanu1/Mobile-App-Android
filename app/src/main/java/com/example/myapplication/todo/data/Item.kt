@@ -3,13 +3,16 @@ package com.example.myapplication.todo.data
 import android.annotation.SuppressLint
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
 import java.util.Date
 
 
 @Entity(tableName = "items")
 data class Item(
-    @PrimaryKey val _id: String = "${System.currentTimeMillis()*10000}",
+    @PrimaryKey
+    @SerializedName("_id")
+    val _id: String = "${System.currentTimeMillis()*10000}",
     val name: String = "",
     val description: String = "",
     val noEmployees: Int = 0,

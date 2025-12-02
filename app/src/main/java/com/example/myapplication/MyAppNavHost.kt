@@ -16,6 +16,7 @@ import com.example.myapplication.core.data.UserPreferences
 import com.example.myapplication.core.data.remote.Api
 import com.example.myapplication.core.ui.UserPreferencesViewModel
 import com.example.myapplication.todo.ui.item.ItemScreen
+import com.example.myapplication.todo.ui.item.ItemAddScreen
 import com.example.myapplication.todo.ui.items.ItemsScreen
 
 val itemsRoute = "items"
@@ -30,6 +31,7 @@ fun MyAppNavHost() {
     }
     val userPreferencesViewModel =
         viewModel<UserPreferencesViewModel>(factory = UserPreferencesViewModel.Factory)
+
     val userPreferencesUiState by userPreferencesViewModel.uiState.collectAsStateWithLifecycle(
         initialValue = UserPreferences()
     )
@@ -69,7 +71,7 @@ fun MyAppNavHost() {
         }
         composable(route = "$itemsRoute-new")
         {
-            ItemScreen(
+            ItemAddScreen(
                 itemId = null,
                 onClose = { onCloseItem() }
             )

@@ -85,7 +85,7 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
                     openingDate = openingDateString,
                     isPublic = isPublic
                 )
-                val savedItem: Item =  itemRepository.save(itemToSave)
+                val savedItem: Item =  itemRepository.update(itemToSave)
 
                 Log.d(TAG, "saveOrUpdateItem - success")
                 uiState = uiState.copy(submitResult = Result.Success(savedItem))

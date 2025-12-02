@@ -162,7 +162,15 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
         Log.d(TAG, "handleItemCreated...: $Item")
         if(!items.contains(Item)) {
             items = items.plus(Item)
-            database.itemDao().insert(Item)
+
+            if(Item!=null){
+                database.itemDao().insert(Item)
+            }
+            else{
+                Log.d(TAG, "handleItemCreated: Item is null!")
+            }
+
+
         }
         itemsFlow.emit(Result.Success(items))
     }
