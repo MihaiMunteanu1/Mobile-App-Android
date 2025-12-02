@@ -17,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.todo.data.Item
+import androidx.compose.ui.graphics.Color
 
 typealias OnItemFn = (id: String?) -> Unit
 
@@ -38,9 +39,23 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     Log.d("ItemDetail", "recompose id = ${item._id}")
     Row(modifier = Modifier.padding(10.dp)) {
         Column {
-            ClickableText(text = AnnotatedString(item.name),style = TextStyle(
-                fontSize = 24.sp,
-            ), onClick = { onItemClick(item._id) })
+            if(item.requiresCreate){
+                ClickableText(text = AnnotatedString(item.name),style = TextStyle(
+                    fontSize = 24.sp,
+                    color = Color.Blue,
+                ), onClick = { onItemClick(item._id) })
+            }
+            else if(item.requiresUpdate){
+                ClickableText(text = AnnotatedString(item.name),style = TextStyle(
+                    fontSize = 24.sp,
+                    color = Color.Green,
+                ), onClick = { onItemClick(item._id) })
+            }
+            else{
+                ClickableText(text = AnnotatedString(item.name),style = TextStyle(
+                    fontSize = 24.sp,
+                ), onClick = { onItemClick(item._id) })            }
+
             Text("Description: ${item.description}")
             Text("Employees: ${item.noEmployees}")
             Text("Opened: ${item.openingDate}")

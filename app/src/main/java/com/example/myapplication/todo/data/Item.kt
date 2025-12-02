@@ -9,12 +9,15 @@ import java.util.Date
 
 @Entity(tableName = "items")
 data class Item(
-    @PrimaryKey val _id: String = "",
+    @PrimaryKey val _id: String = "${System.currentTimeMillis()*10000}",
     val name: String = "",
     val description: String = "",
     val noEmployees: Int = 0,
     val openingDate: String = convertDateToString(Date()),
-    val isPublic: Boolean = false
+    val isPublic: Boolean = false,
+
+    var requiresCreate: Boolean=false,
+    var requiresUpdate: Boolean=false
 )
 
 @SuppressLint("SimpleDateFormat")

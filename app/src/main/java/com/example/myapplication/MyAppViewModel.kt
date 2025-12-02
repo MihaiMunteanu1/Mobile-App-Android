@@ -9,12 +9,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.myapplication.core.TAG
 import com.example.myapplication.core.data.UserPreferences
 import com.example.myapplication.core.data.UserPreferencesRepository
-import com.example.myapplication.todo.data.ItemRepository
+import com.example.myapplication.todo.data.ItemRepo
 import kotlinx.coroutines.launch
 
 class MyAppViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val itemRepository: ItemRepository
+    private val itemRepository: ItemRepo
 ) :
     ViewModel() {
 
@@ -24,7 +24,7 @@ class MyAppViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            itemRepository.deleteAll()
+            //itemRepository.deleteAll()
             userPreferencesRepository.save(UserPreferences())
         }
     }

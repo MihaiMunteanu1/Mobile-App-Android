@@ -19,7 +19,7 @@ class ItemWsClient(private val okHttpClient: OkHttpClient) {
     lateinit var webSocket: WebSocket
 
     suspend fun openSocket(
-        onEvent: (itemEvent: ItemEvent?) -> Unit,
+        onEvent: (itemEvent: ItemEvent2?) -> Unit,
         onClosed: () -> Unit,
         onFailure: () -> Unit
     ) {
@@ -40,13 +40,13 @@ class ItemWsClient(private val okHttpClient: OkHttpClient) {
     }
 
     inner class ItemWebSocketListener(
-        private val onEvent: (itemEvent: ItemEvent?) -> Unit,
+        private val onEvent: (itemEvent: ItemEvent2?) -> Unit,
         private val onClosed: () -> Unit,
         private val onFailure: () -> Unit
     ) : WebSocketListener() {
         private val moshi = Moshi.Builder().build()
-        private val itemEventJsonAdapter: JsonAdapter<ItemEvent> =
-            moshi.adapter(ItemEvent::class.java)
+        private val itemEventJsonAdapter: JsonAdapter<ItemEvent2> =
+            moshi.adapter(ItemEvent2::class.java)
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d(TAG, "onOpen")
