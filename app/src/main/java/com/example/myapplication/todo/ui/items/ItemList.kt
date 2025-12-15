@@ -23,6 +23,15 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.todo.data.Item
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+
 typealias OnItemFn = (id: String?) -> Unit
 
 @Composable
@@ -41,7 +50,13 @@ fun ItemList(itemList: List<Item>, onItemClick: OnItemFn, modifier: Modifier) {
 @Composable
 fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     Log.d("ItemDetail", "recompose id = ${item._id}")
-    Row(modifier = Modifier.padding(10.dp)) {
+    //Row(modifier = Modifier.padding(10.dp)) {
+    Row(
+        modifier = Modifier
+            .padding(10.dp)
+            .animateContentSize()
+    ) {
+        var isExpanded by rememberSaveable(item._id) { mutableStateOf(false) }
         val imageBitmap = remember(item.photoPath) {
             item.photoPath?.let { path ->
                 BitmapFactory.decodeFile(path)?.asImageBitmap()
@@ -53,6 +68,7 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
                 contentDescription = "Item photo",
                 modifier = Modifier
                     .size(72.dp)
+                    .clickable { isExpanded = !isExpanded }
                     .padding(end = 12.dp)
             )
         }
@@ -78,6 +94,14 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
             Text("Employees: ${item.noEmployees}")
             Text("Opened: ${item.openingDate}")
             Text("Public: ${item.isPublic}")
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "More details: expandable content shown here...",
+                    style = TextStyle(fontSize = 16.sp)
+                )
+            }
         }
     }
 }
