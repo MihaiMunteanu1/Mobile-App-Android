@@ -31,26 +31,39 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.*
 
 typealias OnItemFn = (id: String?) -> Unit
-
 @Composable
 fun ItemList(itemList: List<Item>, onItemClick: OnItemFn, modifier: Modifier) {
-    Log.d("ItemList", "recompose")
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(12.dp)
     ) {
-        items(itemList) { item ->
-            ItemDetail(item, onItemClick)
+        itemsIndexed(
+            items = itemList,
+            key = { _, item -> item._id ?: item.hashCode() } // important pt state per item
+        ) { index, item ->
+            FadeInItem(
+                itemId = item._id,
+                index = index,
+                stepMillis = 550L,      // 2 sec între item-uri
+                durationMillis = 600     // cât durează fade-ul
+            ) {
+                ItemDetail(item, onItemClick)
+            }
         }
     }
 }
+
 @Composable
 fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     Log.d("ItemDetail", "recompose id = ${item._id}")
-    //Row(modifier = Modifier.padding(10.dp)) {
     Row(
         modifier = Modifier
             .padding(10.dp)
@@ -106,4 +119,27 @@ fun ItemDetail(item: Item, onItemClick: OnItemFn) {
     }
 }
 
+@Composable
+private fun FadeInItem(
+    itemId: String?,
+    index: Int,
+    stepMillis: Long,
+    durationMillis: Int,
+    content: @Composable () -> Unit
+) {
+    var visible by rememberSaveable(itemId) { mutableStateOf(false) }
 
+    LaunchedEffect(itemId) {
+        if (!visible) {
+            kotlinx.coroutines.delay(index * stepMillis) // stagger: 0s, 2s, 4s...
+            visible = true
+        }
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(durationMillis = durationMillis))
+    ) {
+        content()
+    }
+}
