@@ -41,7 +41,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,7 +53,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
-
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+import java.io.File
+import java.io.IOException
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
@@ -72,6 +78,17 @@ fun ItemScreen(itemId: String?, onClose: () -> Unit) {
     //var datePickerState by rememberSaveable {mutableStateOf(itemUiState.item.openingDate)}
     var photoPath by rememberSaveable { mutableStateOf(itemUiState.item.photoPath) }
     var showCamera by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            copyImageFromUri(context, it)?.let { savedPath ->
+                photoPath = savedPath
+            }
+        }
+    }
 
     val dateFormat = remember {
         SimpleDateFormat("dd/MM/yyyy", Locale.US).apply {
@@ -237,12 +254,16 @@ fun ItemScreen(itemId: String?, onClose: () -> Unit) {
                 else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Button(onClick = { showCamera = true }) {
-                            Text("Capture photo")
+                            Text("Camera")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { galleryLauncher.launch("image/*") }) {
+                            Text("Gallery")
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         if (photoPath != null) {
                             Button(onClick = { photoPath = null }) {
-                                Text("Remove photo")
+                                Text("Remove")
                             }
                         }
                     }
@@ -297,6 +318,21 @@ fun ItemScreen(itemId: String?, onClose: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+private fun copyImageFromUri(context: Context, uri: Uri): String? {
+    return try {
+        val photoFile = File(context.cacheDir, "item-photo-${System.currentTimeMillis()}.jpg")
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            photoFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        } ?: return null
+        photoFile.absolutePath
+    } catch (e: IOException) {
+        Log.e("ItemScreen", "Failed to copy image from gallery", e)
+        null
     }
 }
 

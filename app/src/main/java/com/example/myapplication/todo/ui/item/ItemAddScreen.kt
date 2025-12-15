@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,6 +59,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ContentScale.Companion.Crop
 import com.example.myapplication.camera.CameraCapture
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+import java.io.File
+import java.io.IOException
 import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +81,17 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
 
     var photoPath by rememberSaveable { mutableStateOf<String?>(null) }
     var showCamera by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            copyImageFromUri(context, it)?.let { savedPath ->
+                photoPath = savedPath
+            }
+        }
+    }
 
     val loadResult = itemUiState.loadResult
 
@@ -234,12 +253,16 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Button(onClick = { showCamera = true }) {
-                            Text("Capture photo")
+                            Text("Camera")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { galleryLauncher.launch("image/*") }) {
+                            Text("Gallery")
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         if (photoPath != null) {
                             Button(onClick = { photoPath = null }) {
-                                Text("Remove photo")
+                                Text("Remove")
                             }
                         }
                     }
@@ -295,5 +318,19 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                 }
             }
         }
+    }
+}
+private fun copyImageFromUri(context: Context, uri: Uri): String? {
+    return try {
+        val photoFile = File(context.cacheDir, "item-photo-${System.currentTimeMillis()}.jpg")
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            photoFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        } ?: return null
+        photoFile.absolutePath
+    } catch (e: IOException) {
+        Log.e("ItemAddScreen", "Failed to copy image from gallery", e)
+        null
     }
 }
