@@ -46,12 +46,14 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
 
 import com.example.myapplication.camera.CameraCapture
@@ -191,8 +193,15 @@ fun ItemScreen(itemId: String?, onClose: () -> Unit) {
                             contentDescription = "Item photo",
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp)
                                 .padding(vertical = 8.dp)
+                                .aspectRatio(4f / 3f),
+                            contentScale = ContentScale.Crop
+//                            bitmap = it,
+//                            contentDescription = "Item photo",
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(200.dp)
+//                                .padding(vertical = 8.dp)
                         )
                     }
                 }
