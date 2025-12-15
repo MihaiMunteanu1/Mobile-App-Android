@@ -38,7 +38,7 @@ import com.example.myapplication.todo.PendingWorker
 import com.example.myapplication.todo.connectivityState
 import com.example.myapplication.core.Result
 import com.example.myapplication.todo.data.Item
-
+import com.example.myapplication.todo.makeStatusNotification
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun ItemsScreen(onItemClick: (id: String?) -> Unit, onAddItem: () -> Unit, onLogout: () -> Unit) {
@@ -59,6 +59,14 @@ fun ItemsScreen(onItemClick: (id: String?) -> Unit, onAddItem: () -> Unit, onLog
                 val request = OneTimeWorkRequestBuilder<PendingWorker>().build()
                 workManager.enqueue(request)
             }
+        }
+        if (isOffline != (networkConnectivity == ConnectionState.Unavailable)) {
+            val statusMessage = if (networkConnectivity == ConnectionState.Available) {
+                "Connection restored: online"
+            } else {
+                "Connection lost: offline"
+            }
+            makeStatusNotification(statusMessage, app)
         }
         isOffline = networkConnectivity == ConnectionState.Unavailable
     }

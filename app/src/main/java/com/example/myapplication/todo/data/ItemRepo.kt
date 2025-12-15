@@ -18,7 +18,7 @@ import com.example.myapplication.core.TAG
 import com.example.myapplication.core.Result
 import com.example.myapplication.todo.data.remote.ItemEvent2
 import com.example.myapplication.core.data.remote.Api
-
+import com.example.myapplication.todo.makeStatusNotification
 
 class ItemRepo(private val itemService: ItemService, private val itemWsClient: ItemWsClient,
                      private val database: ItemDatabase, private val context: Context
@@ -48,11 +48,13 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
                 database.itemDao().insert(Item)
             }
             Log.d(TAG, "refresh succeeded")
+            makeStatusNotification("Items fetched from server", context)
             itemsFlow.emit(Result.Success(items))
         } catch (e: Exception) {
             Log.d(TAG, "refresh failed", e)
             items  =database.itemDao().getAll()
             itemsFlow.emit(Result.Success(items))
+            makeStatusNotification("Using cached items while offline", context)
             //itemsFlow.emit(Result.Error(e))
         }
     }
@@ -102,6 +104,7 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
             Log.d(TAG, "update $Item...")
             val updatedItem = itemService.update(authorization = getBearerToken(), Item._id, Item)
             Log.d(TAG, "update $Item succeeded")
+            makeStatusNotification("Item updated: ${updatedItem.name}", context)
             handleItemUpdated(updatedItem)
             return updatedItem
         }
@@ -113,6 +116,7 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
             Handler(Looper.getMainLooper()).post({
                 Toast.makeText(context, "Server unreachable. Saved locally", Toast.LENGTH_LONG).show()
             })
+            makeStatusNotification("Update saved offline: ${Item.name}", context)
             return Item
         }
     }
@@ -124,6 +128,7 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
             val createdItem = itemService.create(authorization = getBearerToken(), Item)
             Log.d(TAG, "save $Item succeeded")
             Log.d(TAG, "handle created $createdItem")
+            makeStatusNotification("Item added: ${createdItem.name}", context)
             handleItemCreated(createdItem)
             return createdItem
         }
@@ -143,6 +148,7 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
             Handler(Looper.getMainLooper()).post({
                 Toast.makeText(context, "Server unreachable. Saved locally", Toast.LENGTH_LONG).show()
             })
+            makeStatusNotification("Item saved offline: ${createdItem.name}", context)
             return createdItem
         }
     }

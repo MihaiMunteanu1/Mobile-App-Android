@@ -40,7 +40,11 @@ class PendingWorker(ctx:Context, params:WorkerParameters) : CoroutineWorker(ctx,
                 val res = appContext.container.itemRepository.update(item)
                 if(res.requiresUpdate)
                     failed++
-                else successful++
+                //else successful++
+                else {
+                    successful++
+                    makeStatusNotification("Offline update synced: ${res.name}", appContext)
+                }
             }
             else if(item.requiresCreate) {
                 Log.d("PendingWorker", "REQUIRES CREATE ${item}")
@@ -50,6 +54,7 @@ class PendingWorker(ctx:Context, params:WorkerParameters) : CoroutineWorker(ctx,
                     failed++
                 else {
                     successful++
+                    makeStatusNotification("Offline item uploaded: ${res.name}", appContext)
                 }
             }
         }
