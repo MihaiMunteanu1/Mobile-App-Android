@@ -60,14 +60,14 @@ fun ItemsScreen(onItemClick: (id: String?) -> Unit, onAddItem: () -> Unit, onLog
                 workManager.enqueue(request)
             }
         }
-        if (isOffline != (networkConnectivity == ConnectionState.Unavailable)) {
-            val statusMessage = if (networkConnectivity == ConnectionState.Available) {
-                "Connection restored: online"
-            } else {
-                "Connection lost: offline"
-            }
-            makeStatusNotification(statusMessage, app)
-        }
+//        if (isOffline != (networkConnectivity == ConnectionState.Unavailable)) {
+//            val statusMessage = if (networkConnectivity == ConnectionState.Available) {
+//                "Connection restored: online"
+//            } else {
+//                "Connection lost: offline"
+//            }
+//            makeStatusNotification(statusMessage, app)
+//        }
         isOffline = networkConnectivity == ConnectionState.Unavailable
     }
 

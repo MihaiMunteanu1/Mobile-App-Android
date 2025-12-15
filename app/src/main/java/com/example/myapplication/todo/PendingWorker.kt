@@ -17,12 +17,14 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters;
 import com.example.myapplication.MyApplication
 import com.example.myapplication.R
+import java.util.concurrent.atomic.AtomicInteger
 
 @JvmField val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence = "Verbose WorkManager Notifications"
 const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Shows notifications whenever work starts"
 @JvmField val NOTIFICATION_TITLE: CharSequence = "WorkRequest Starting"
 const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
-const val NOTIFICATION_ID = 1
+//const val NOTIFICATION_ID = 1
+private val notificationIdCounter = AtomicInteger(1)
 
 class PendingWorker(ctx:Context, params:WorkerParameters) : CoroutineWorker(ctx, params) {
     val TAG = "PendingWorker"
@@ -99,6 +101,7 @@ fun makeStatusNotification(message: String, context: Context) {
     // Show the notification
     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
         return
-    NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
+    //NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
+    NotificationManagerCompat.from(context).notify(notificationIdCounter.getAndIncrement(), builder.build())
 }
 
