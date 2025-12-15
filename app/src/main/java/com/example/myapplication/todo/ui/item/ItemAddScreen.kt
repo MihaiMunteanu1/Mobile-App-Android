@@ -2,6 +2,7 @@ package com.example.myapplication.todo.ui.item
 
 import android.R.attr.timeZone
 import android.util.Log
+import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,6 +43,16 @@ import com.example.myapplication.core.Result
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import com.example.myapplication.camera.CameraCapture
 import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +68,8 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
     //val datePickerState = rememberDatePickerState(initialSelectedDateMillis = itemUiState.item.openingDate.time)
     //var datePickerState by rememberSaveable {mutableStateOf(itemUiState.item.openingDate)}
 
+    var photoPath by rememberSaveable { mutableStateOf<String?>(null) }
+    var showCamera by remember { mutableStateOf(false) }
 
     val loadResult = itemUiState.loadResult
 
@@ -98,6 +111,7 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
             description = item.description
             noEmployees = item.noEmployees.toString()
             isPublic = item.isPublic
+            photoPath = item.photoPath
         }
     }
 
@@ -122,7 +136,8 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                             description,
                             noEmployees.toIntOrNull() ?: 0,
                             openingDateMillis,
-                            isPublic
+                            isPublic,
+                            photoPath
                         )
                     }) {
                         Text("Save")
@@ -136,6 +151,7 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                 .padding(paddingValues)
                 .fillMaxSize()
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             // Show loading indicator when the item is being loaded
             if (itemUiState.loadResult is Result.Loading) {
@@ -173,6 +189,64 @@ fun ItemAddScreen(itemId: String?, onClose: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     enabled = itemUiState.loadResult !is Result.Loading
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                photoPath?.let { path ->
+                    val bitmap = remember(path) { BitmapFactory.decodeFile(path)?.asImageBitmap() }
+                    bitmap?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = "Item photo",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .padding(vertical = 8.dp)
+                        )
+                    }
+                }
+                if (showCamera) {
+                    Dialog(onDismissRequest = { showCamera = false }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black)
+                        ) {
+                            CameraCapture(
+                                modifier = Modifier.fillMaxSize(),
+                                onImageFile = { file ->
+                                    photoPath = file.absolutePath
+                                    showCamera = false
+                                },
+                                onClose = { showCamera = false }
+                            )
+                        }
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Button(onClick = { showCamera = true }) {
+                            Text("Capture photo")
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (photoPath != null) {
+                            Button(onClick = { photoPath = null }) {
+                                Text("Remove photo")
+                            }
+                        }
+                    }
+                }
+//                if (showCamera) {
+//                    CameraCapture(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(200.dp),
+//                        onImageFile = { file ->
+//                            photoPath = file.absolutePath
+//                            showCamera = false
+//                        },
+//                        onClose = { showCamera = false }
+//                    )
+//                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextField(

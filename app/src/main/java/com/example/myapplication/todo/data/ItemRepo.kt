@@ -139,6 +139,7 @@ class ItemRepo(private val itemService: ItemService, private val itemWsClient: I
                 openingDate = Item.openingDate,
                 noEmployees = Item.noEmployees,
                 isPublic = Item.isPublic,
+                photoPath = Item.photoPath,
                 requiresCreate = true,
                 requiresUpdate = false
             )

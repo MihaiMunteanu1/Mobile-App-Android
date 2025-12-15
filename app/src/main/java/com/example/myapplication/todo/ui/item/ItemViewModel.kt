@@ -71,7 +71,8 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
         description: String,
         noEmployees: Int,
         openingDateMillis: Long,
-        isPublic: Boolean
+        isPublic: Boolean,
+        photoPath: String?
     ) {
         viewModelScope.launch {
             Log.d(TAG, "saveOrUpdateItem - started")
@@ -83,7 +84,8 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
                     description = description,
                     noEmployees = noEmployees,
                     openingDate = openingDateString,
-                    isPublic = isPublic
+                    isPublic = isPublic,
+                    photoPath = photoPath
                 )
                 val savedItem: Item =  itemRepository.update(itemToSave)
 
@@ -101,7 +103,8 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
         description: String,
         noEmployees: Int,
         openingDateMillis: Long,
-        isPublic: Boolean
+        isPublic: Boolean,
+        photoPath: String?
     ) {
         viewModelScope.launch {
             Log.d(TAG, "saveOrUpdateItem - started")
@@ -113,7 +116,8 @@ class ItemViewModel(private val itemId: String?, private val itemRepository: Ite
                     description = description,
                     noEmployees = noEmployees,
                     openingDate = openingDateString,
-                    isPublic = isPublic
+                    isPublic = isPublic,
+                    photoPath = photoPath
                 )
                 val savedItem: Item =  itemRepository.save(itemToSave)
 

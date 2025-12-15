@@ -18,6 +18,7 @@ data class Item(
     val noEmployees: Int = 0,
     val openingDate: String = convertDateToString(Date()),
     val isPublic: Boolean = false,
+    val photoPath: String? = null,
 
     var requiresCreate: Boolean=false,
     var requiresUpdate: Boolean=false
